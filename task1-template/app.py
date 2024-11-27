@@ -6,11 +6,11 @@ from openai import OpenAI
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-st.title("Country Guessr")
+st.title("Country Guesser")
 st.image("https://tse4.mm.bing.net/th?id=OIP.4cXjNUsskNTDylthxHqMFwHaDq&pid=Api")
 #i think keys get blocked if they are on github
 key = st.text_input("Please put your OpenAI key here")
-st.subheader("How to play")
+
 
 #making it look like its from chat bot
 with st.chat_message("assistant"):
@@ -43,12 +43,12 @@ if 'total_number' not in st.session_state:
     st.session_state.total_number = 0
 
 if 'stats_df' not in st.session_state:
-    st.session_state.stats_df = pd.DataFrame({'Country:': [], 'TotalGuesses': [], 'Hints': [], 'Question': []})
+    st.session_state.stats_df = pd.DataFrame({'Country': [], 'TotalGuesses': [], 'Hints': [], 'Question': []})
 
 
 
 
-st.write("Solution: ", st.session_state.country_to_guess)
+#st.write("Solution: ", st.session_state.country_to_guess)
 
 
 
@@ -87,6 +87,10 @@ if message:
 
 
     #counting and evaluating various scenarios
+    if chat_completion.choices[0].message.content[0:25] == "Your answer is incorrect!":
+        #AURELIO HERE , pull the guessed country out of user message to evaluate the guess
+        guessed_country = client.chat.completions.create( model=model, messages=[ {"role": "user", "content": f"Give me the name of the country the user incorrectly guessed in this conversation: {message}. The answer can not possibly be: {st.session_state.country_to_guess} The answer only consists of the name of the country. Possible country names are {countries['Country']}." },],)
+        st.write(guessed_country.choices[0].message.content)
     if chat_completion.choices[0].message.content[0:5] == "Fact:":
         st.session_state.question_number = st.session_state.question_number + 1
 
@@ -109,12 +113,15 @@ if message:
         st.session_state.hint_number = 0
         st.session_state.country_to_guess = get_random_country()
 
+        with st.chat_message("assistant"):
+            st.write("Oh, I thougtht of another country rigth now, try to guess it!")
+
 
 
 
 
 #looking for the answer
-st.write("Solution: ", st.session_state.country_to_guess)
+#st.write("Solution: ", st.session_state.country_to_guess)
 #myenv\Scripts\activate
 #pip install -r requirements.txt
 
