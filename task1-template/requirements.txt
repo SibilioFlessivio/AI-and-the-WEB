@@ -1,4 +1,4 @@
 streamlit
 openai
-pandas
-matplotlib
+pandas == 2.2.3
+ 
